@@ -42,7 +42,7 @@ static void do_ls(char *parms);
 int main (int argc, char* argv[])
 {
     //char* dirname
-    no_argv(argc);
+    no_argv(argc,argv);
     int argvlength = 0;
     char* dirname = NULL;
     dirname = argv[1];
@@ -128,7 +128,7 @@ void do_entry(const char * entry_name, char ** parms)
     /* get information about the file and/or directory*/
     if (lstat(entry_name, &entry_data) == -1)
     {
-        error("lstat failed");
+         error(0,errno,"lstat failed");
         return;
     }
     errno=0;                                                                                                                                                      
