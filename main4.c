@@ -23,7 +23,8 @@
 #define MAXLEN 256
 #define NULLCHAR 1
 
-static void no_argv(int argc);
+
+static void no_argv(int argc, char ** parms);
 //do_entry(const char * entry_name, const char * const * parms);
 
 static void do_entry(const char * entry_name, char ** parms);
@@ -45,12 +46,18 @@ int main (int argc, char* argv[])
     return 0;
 }
 
-static void no_argv(int argc){
+static void no_argv(int argc, char ** parms){
+	if(argc == 2){
+		if (*parms[1] == '-'){
+			 if (strcmp("-ls", parms[1]) == 0 || strcmp("-print", parms[1]) == 0) {
+				 printf ("%s musss ausgegeben", parms[1]);
+			 }
+			 else {printf("ungueltige angabe");}
+		}
+		else {
+				do_dir(parms[1],parms);}
 
-    if(argc<2){
-        fprintf(stderr, "something went wrong!!! - ARGUMENTS 0");
-    exit(1);
-    }
+	}
 
 }
 void do_dir(const char * dir_name, char ** parms) {
