@@ -182,3 +182,30 @@ void do_entry(const char * entry_name, char ** parms)
         }                                                                                                                                                         
     }                                                                                                                                                             
 }
+static void do_group(char *parms){
+        printf("Group: Gesucht wird nach: %s", parms);
+    }
+    static void do_nogroup(char *parms) {
+        printf("NoGroup:Gesucht wird nach: %s", parms);
+    }
+    static void do_nouser(char *parms) {
+        printf("do_nouser Gesucht wird nach: %s", parms);
+    }
+    static void do_user(char *parms) {
+        printf(" do_user Gesucht wird nach: %s", parms);
+    }
+    static void do_name(char *parms) {
+        printf("do_name Gesucht wird nach: %s", parms);
+    }
+    static void do_type(char *parms) {
+        printf(" do_type Gesucht wird nach: %s", parms);
+    }
+    static void do_path(char *parms) {
+        printf("path Gesucht wird nach: %s", parms);
+    }
+    static void do_print(char *parms) {
+        printf("print Gesucht wird nach: %s", parms);
+    }
+    static void do_ls(char *parms) {
+        printf("ls Gesucht wird nach: %s", parms);
+    }
