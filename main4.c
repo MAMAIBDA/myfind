@@ -29,6 +29,15 @@ static void no_argv(int argc, char ** parms);
 
 static void do_entry(const char * entry_name, char ** parms);
 static void do_dir(const char * dir_name, char ** parms);
+static void do_nogroup(char *parms);
+static void do_group(char *parms);
+static void do_nouser(char *parms);
+static void do_user(char *parms);
+static void do_name(char *parms);
+static void do_type(char *parms);
+static void do_path(char *parms);
+static void do_print(char *parms);
+static void do_ls(char *parms);
 
 int main (int argc, char* argv[])
 {
