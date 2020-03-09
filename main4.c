@@ -162,11 +162,11 @@ void do_entry(const char * entry_name, char ** parms)
                                                                                                                                                                   
                 } else if (j == 4) {                                                                                                                               
                                                                                                                                                                   
-                    do_name(parms[i + 1]);                                                                                                                        
+                    do_name(parms[i + 1]);//double!                                                                                                                        
                                                                                                                                                                   
                 } else if (j == 5) {                                                                                                                               
                                                                                                                                                                   
-                    do_name(parms[i + 1]);                                                                                                                        
+                    do_name(parms[i + 1]);//double!                                                                                                                        
                                                                                                                                                                   
                 } else if (j == 6) {                                                                                                                               
                                                                                                                                                                   
@@ -174,11 +174,11 @@ void do_entry(const char * entry_name, char ** parms)
                                                                                                                                                                   
                 } else if (j == 7) {                                                                                                                               
                                                                                                                                                                   
-                    do_print(parms[i + 1]);                                                                                                                       
+                    do_print(parms[i - 1]);                                                                                                                       
                                                                                                                                                                   
                 } else if (j == 8) {                                                                                                                               
                                                                                                                                                                   
-                    do_ls(parms[i + 1]);                                                                                                                          
+                    do_ls(parms[i - 1]);                                                                                                                          
                                                                                                                                                                   
                 }else{
                     exit(1);
