@@ -33,7 +33,7 @@ static void do_nogroup(char *parms);
 static void do_group(char *parms);
 static void do_nouser(char *parms);
 static void do_user(char *parms);
-static void do_name(char *parms);
+static void do_name(const char *parms);
 static void do_type(char *parms);
 static void do_path(char *parms);
 static void do_print(char *parms);
@@ -73,51 +73,47 @@ void do_dir(const char * dir_name, char ** parms) {
 
     struct stat st;
     char wholepath[MAXLEN];
-    DIR *dirp = NULL;
+    errno=0;
+    DIR *dirp;
     dirp = opendir(dir_name);
     //int is_dir_flag=0;
     char temp_dir[MAXLEN];
-    if (dirp == NULL){
+    if (errno != 0){
     //if ((dirp = opendir(dir_name)) == NULL) {
-
-        error(0,errno, "Fehler!: %s\n",dir_name);
+        
+        error(1,errno, "Fehler!: %s\n",dir_name);
+        return;
         //EXIT_FAILURE;
-      //  exit(1);
+        
     }
     else {
         printf("wir haben %s gefunden \n",dir_name);
-    }
-    const struct dirent *dirent;
-    errno = 0;
-    int testnr = 0;
-    while ((dirent = readdir(dirp)) != NULL) {
-        testnr++;
-        //printf("%d\n", testnr);
-        if (strcmp(dirent->d_name, ".") != 0 && (strcmp(dirent->d_name, "..") != 0)) {
+        const struct dirent *dirent;
+        errno = 0;
+        while ((dirent = readdir(dirp)) != NULL) {
+            
+            //printf("%d\n", testnr);
+            if (strcmp(dirent->d_name, ".") != 0 && (strcmp(dirent->d_name, "..") != 0)) {
             printf("%s/%s\n", dir_name, dirent->d_name);
             snprintf(wholepath, (sizeof(dir_name)+sizeof(dirent->d_name) +NULLCHAR), "%s/%s", dir_name, dirent->d_name);
-            if (lstat(wholepath, &st) == -1) {
-                error(0,errno, "stat - no such file or directory");
-                exit(1);
+                if (lstat(wholepath, &st) == -1) {
+                    error(0,errno, "stat - no such file or directory");
+                    exit(1);
+                }
+
             }
-
-        }
-        if (S_ISDIR(st.st_mode)) {
-            do_dir(wholepath,parms);
-        }
-
-
-        errno=0;
+            if (S_ISDIR(st.st_mode)) {
+                do_dir(wholepath,parms);
+            }
+    errno=0;
     }
-    if (errno!=0){
-        error(0,errno, "Fault while readdir");
-    }
-    
-    
-
-    if (closedir(dirp) == -1) {
-                error(0,errno, "closedir");
-        exit(1);
+        if (errno!=0){
+            error(0,errno, "Fault while readdir");
+        }
+        if (closedir(dirp) == -1) {
+            error(0,errno, "closedir");
+            exit(1);
+        }
     }
 }
 
@@ -125,14 +121,15 @@ void do_dir(const char * dir_name, char ** parms) {
 void do_entry(const char * entry_name, char ** parms)                                                                                                             
 {                                                                                                                                                                 
     struct stat entry_data;
-    /* get information about the file and/or directory*/
+    /* get information about the file and/or directory
     if (lstat(entry_name, &entry_data) == -1)
     {
          error(0,errno,"lstat failed");
         return;
-    }
+    }*/
     errno=0;                                                                                                                                                      
-    int i=0;                                                                                                                                                      
+    int i=0;
+    int do_dir_flag=1;                                                                                                                                                      
     char buffer[MAXLEN];                                                                                                                                          
     const char possible_entry[10][MAXLEN] = {"-nogroup","-group", "-nouser", "-user", "-name", "-type", "-path", "-print", "-ls"};                                
                                                                                                                                                                   
@@ -161,16 +158,12 @@ void do_entry(const char * entry_name, char ** parms)
                     do_user(parms[i + 1]);                                                                                                                        
                                                                                                                                                                   
                 } else if (j == 4) {                                                                                                                               
-                                                                                                                                                                  
-                    do_name(parms[i + 1]);//double!                                                                                                                        
-                                                                                                                                                                  
-                } else if (j == 5) {                                                                                                                               
-                                                                                                                                                                  
-                    do_name(parms[i + 1]);//double!                                                                                                                        
-                                                                                                                                                                  
+                    do_dir_flag=0;                                                                                            
+                    do_name(parms[i + 1]);                                                                                                                        
+                                                                                                                                                                                                                                                                                                                  
                 } else if (j == 6) {                                                                                                                               
                                                                                                                                                                   
-                    do_path(parms[i + 1]);                                                                                                                        
+                    do_print(parms[i]);                                                                                                                       
                                                                                                                                                                   
                 } else if (j == 7) {                                                                                                                               
                                                                                                                                                                   
@@ -181,17 +174,21 @@ void do_entry(const char * entry_name, char ** parms)
                     do_ls(parms[i - 1]);                                                                                                                          
                                                                                                                                                                   
                 }else{
+                   //hier noch error und vielleicht auch noch sowas wie help verwenden
                     exit(1);
                 }   
                 }                                                                                                                                                  
             }                                                                                                                                                     
         }                                                                                                                                                         
-        else{                                                                                                                                                     
-            do_dir(parms[i],parms);                                                                                                                               
+        else{     
+            if (do_dir_flag==1){
+            printf("\n nr:%i parameter:%s\n",i,parms[i]);                                                                                                                                                    
+            do_dir(parms[i],parms);
+            }                                                                                                                               
         }                                                                                                                                                         
     }                                                                                                                                                             
 }
-static void do_group(char *parms){
+    static void do_group(char *parms){
         printf("Group: Gesucht wird nach: %s", parms);
     }
     static void do_nogroup(char *parms) {
@@ -203,7 +200,7 @@ static void do_group(char *parms){
     static void do_user(char *parms) {
         printf(" do_user Gesucht wird nach: %s", parms);
     }
-    static void do_name(char *parms) {
+    static void do_name(const char *parms) {
         printf("do_name Gesucht wird nach: %s", parms);
     }
     static void do_type(char *parms) {
