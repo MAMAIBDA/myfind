@@ -34,7 +34,7 @@ static void do_group(char *parms);
 static void do_nouser(char *parms);
 static void do_user(char *parms);
 static void do_name(const char *parms);
-static void do_type(char *parms);
+static int do_type(const char *parms, const struct stat *entry_data);
 static void do_path(char *parms);
 static void do_print(char *parms);
 static void do_ls(char *parms);
@@ -56,17 +56,13 @@ int main (int argc, char* argv[])
 }
 
 static void no_argv(int argc, char ** parms){
-	if(argc == 2){
-		if (*parms[1] == '-'){
-			 if (strcmp("-ls", parms[1]) == 0 || strcmp("-print", parms[1]) == 0) {
-				 printf ("%s musss ausgegeben", parms[1]);
-			 }
-			 else {printf("ungueltige angabe");}
-		}
-		else {
-				do_dir(parms[1],parms);}
+	if (argc == 1) {
+		 printf ("default directory ");}
 
-	}
+	else if(argc >= 2 ){
+		if (*parms[1] == '-'){
+				 printf ("default directory ... %s sollte gegeben sein", parms[1]);
+			 }}
 
 }
 void do_dir(const char * dir_name, char ** parms) {
@@ -159,7 +155,10 @@ void do_entry(const char * entry_name, char ** parms)
                                                                                                                                                                   
                 } else if (j == 4) {                                                                                                                               
                     do_dir_flag=0;                                                                                            
-                    do_name(parms[i + 1]);                                                                                                                        
+                    do_name(parms[i + 1]);
+		} else if (j == 5) {
+                	do_type(parms[i+1],&entry_data);          
+                }
                                                                                                                                                                                                                                                                                                                   
                 } else if (j == 6) {                                                                                                                               
                                                                                                                                                                   
@@ -203,9 +202,53 @@ void do_entry(const char * entry_name, char ** parms)
     static void do_name(const char *parms) {
         printf("do_name Gesucht wird nach: %s", parms);
     }
-    static void do_type(char *parms) {
-        printf(" do_type Gesucht wird nach: %s", parms);
+    
+    static int do_type(const char *parms, const struct stat *entry_data) {
+    	 char type_scan = parms[0];
+
+    	    switch (type_scan) {
+    	        case 'd':
+    	            if ((entry_data->st_mode & S_IFMT) == S_IFDIR) {
+    	                return 1;
+    	            }
+    	            break;
+    	        case 'c':
+    	            if ((entry_data->st_mode & S_IFMT) == S_IFCHR) {
+    	                return 1;
+    	            }
+    	            break;
+    	        case 'b':
+    	            if ((entry_data->st_mode & S_IFMT) == S_IFBLK) {
+    	                return 1;
+    	            }
+    	            break;
+    	        case 'p':
+    	            if ((entry_data->st_mode & S_IFMT) == S_IFIFO) {
+    	                return 1;
+    	            }
+    	            break;
+    	        case 'l':
+    	            if ((entry_data->st_mode & S_IFMT) == S_IFLNK) {
+    	                return 1;
+    	            }
+    	            break;
+    	        case 's':
+    	            if ((entry_data->st_mode & S_IFMT) == S_IFSOCK) {
+    	                return 1;
+    	            }
+    	            break;
+    	        case 'f':
+    	            if ((entry_data->st_mode & S_IFMT) == S_IFREG) {
+    	                return 1;
+    	            }
+    	            break;
+    	        default:
+    	            error(EXIT_FAILURE, errno, "Unknown type -type: %c", type_scan);
     }
+
+    	    return 0;
+
+    	 }
     static void do_path(char *parms) {
         printf("path Gesucht wird nach: %s", parms);
     }
