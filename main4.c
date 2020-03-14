@@ -57,12 +57,15 @@ int main (int argc, char* argv[])
 
 static void no_argv(int argc, char ** parms){
 	if (argc == 1) {
-		 printf ("default directory ");}
+		 printf ("\ndefault directory\n ");
+	parms[1]="."; //set default directory in case not specified
+	parms[2]=NULL;} // set NULL as next argument to prevent going out of argv boundries
 
 	else if(argc >= 2 ){
 		if (*parms[1] == '-'){
-				 printf ("default directory ... %s sollte gegeben sein", parms[1]);
-			 }}
+				 printf ("\ndefault directory ... %s sollte gegeben sein\n", parms[1]);
+				 parms[1]="."; 
+				 parms[2]=NULL;}} 
 
 }
 void do_dir(const char * dir_name, char ** parms) {
