@@ -129,9 +129,9 @@ void do_entry(const char * entry_name, char ** parms)
     char buffer[MAXLEN];                                                                                                                                          
     const char possible_entry[10][MAXLEN] = {"-nogroup","-group", "-nouser", "-user", "-name", "-type", "-path", "-print", "-ls"};                                
                                                                                                                                                                   
-    while (parms[++i] != NULL){                                                                                                                                   
-        if (*parms[i] == '-'){ 
-            strcpy(buffer, parms[i]);                                                                                                                                   
+    while (parms[++i] != NULL){ 
+	    strcpy(buffer, parms[i]);
+        if (*parms[i] == '-'){                                                                                                                                    
             for (int j = 0; j < 10; j++) {                                                                                                                        
                                                                                                                                         
                 if ((strcmp(possible_entry[j], buffer)) == 0) {                                                                                                   
@@ -157,7 +157,9 @@ void do_entry(const char * entry_name, char ** parms)
                     do_dir_flag=0;                                                                                            
                     do_name(parms[i + 1]);
 		} else if (j == 5) {
-                	do_type(parms[i+1],&entry_data);          
+                	do_type(parms[i+1],&entry_data); 
+			i++;
+                	continue;
                 }
                                                                                                                                                                                                                                                                                                                   
                 } else if (j == 6) {                                                                                                                               
