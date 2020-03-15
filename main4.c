@@ -63,9 +63,21 @@ static void no_argv(int argc, char ** parms){
 
 	else if(argc >= 2 ){
 		if (*parms[1] == '-'){
-				 printf ("\ndefault directory ... %s sollte gegeben sein\n", parms[1]);
-				 parms[1]="."; 
-				 parms[2]=NULL;}} 
+			char *temp;
+			int n=argc+2;
+				 printf ("default directory ... %s sollte gegeben sein", parms[1]);
+				 for (int i= n-2;i>=1; i--){ //change the position of the arguments to the right 
+					 temp = parms[i];
+					 parms[i+1]=temp;
+				 }
+
+				 parms[1]="."; // adding the default directory
+				 parms[n]=NULL;}} // adding NULL to the end to avoid overflow
+
+	//	printf("\n arguments are:");
+	// for (int i=argc ; i>0; i--){
+		// printf("\n argv[%d]: %s \n",i,parms[i]);
+	// }
 
 }
 void do_dir(const char * dir_name, char ** parms) {
