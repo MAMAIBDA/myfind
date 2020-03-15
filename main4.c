@@ -20,24 +20,35 @@
 #include <sys/stat.h>
 #include <fnmatch.h>
 
+#include <pwd.h>
+#include <grp.h>
+
 #define MAXLEN 256
 #define NULLCHAR 1
 
+#define MATCH 1
+#define NO_MATCH 0
 
 static void no_argv(int argc, char ** parms);
 //do_entry(const char * entry_name, const char * const * parms);
 
 static void do_entry(const char * entry_name, char ** parms);
 static void do_dir(const char * dir_name, char ** parms);
-static void do_nogroup(char *parms);
-static void do_group(char *parms);
-static void do_nouser(char *parms);
-static void do_user(char *parms);
 static void do_name(const char *parms);
 static int do_type(const char *parms, const struct stat *entry_data);
 static void do_path(char *parms);
 static void do_print(char *parms);
 static void do_ls(char *parms);
+
+static int do_username(struct stat entry_data, const char * param);
+static int do_uid(struct stat entry_data, const char * param);
+static int do_user(struct stat entry_data, const char * param);
+static int do_nouser(struct stat entry_data);
+static int do_groupname(struct stat entry_data, const char * param);
+static int do_gid(struct stat entry_data, const char * param);
+static int do_group(struct stat entry_data, const char * param);
+static int do_nogroup(struct stat entry_data);
+
 
 int main (int argc, char* argv[])
 {
@@ -154,19 +165,19 @@ void do_entry(const char * entry_name, char ** parms)
                                                                                                                                                                
                 if (j == 0) {                                                                                                                                      
                                                                                                                                                                   
-                   do_nogroup(parms[j + 1]);                                                                                                                      
+               //    do_nogroup(parms[j + 1]);                                                                                                                      
                                                                                                                                                                   
                 } else if (j == 1) {                                                                                                                               
                                                                                                                                                                   
-                    do_group(parms[i + 1]);                                                                                                                       
+                  //  do_group(parms[i + 1]);                                                                                                                       
                                                                                                                                                                   
                 } else if (j == 2) {                                                                                                                               
                                                                                                                                                                   
-                    do_nouser(parms[i + 1]);                                                                                                                      
+               //     do_nouser(parms[i + 1]);                                                                                                                      
                                                                                                                                                                   
                 } else if (j == 3) {                                                                                                                               
                                                                                                                                                                   
-                    do_user(parms[i + 1]);                                                                                                                        
+                 //   do_user(parms[i + 1]);                                                                                                                        
                                                                                                                                                                   
                 } else if (j == 4) {                                                                                                                               
                     do_dir_flag=0;                                                                                            
@@ -204,18 +215,7 @@ void do_entry(const char * entry_name, char ** parms)
         }                                                                                                                                                         
     }                                                                                                                                                             
 }
-    static void do_group(char *parms){
-        printf("Group: Gesucht wird nach: %s", parms);
-    }
-    static void do_nogroup(char *parms) {
-        printf("NoGroup:Gesucht wird nach: %s", parms);
-    }
-    static void do_nouser(char *parms) {
-        printf("do_nouser Gesucht wird nach: %s", parms);
-    }
-    static void do_user(char *parms) {
-        printf(" do_user Gesucht wird nach: %s", parms);
-    }
+
     static void do_name(const char *parms) {
         printf("do_name Gesucht wird nach: %s", parms);
     }
@@ -275,3 +275,178 @@ void do_entry(const char * entry_name, char ** parms)
     static void do_ls(char *parms) {
         printf("ls Gesucht wird nach: %s", parms);
     }
+
+
+static int do_username(struct stat entry_data, const char * param)
+{
+    errno = 0;
+    const struct passwd *pwd_entry;
+
+    pwd_entry = getpwnam(param);
+    if (pwd_entry == NULL){
+
+        if (errno!=0)
+            error(0,errno, "username");// - oder nicht drucken wenn keins gefunden wird?
+        return NO_MATCH;
+    }
+    else if(entry_data.st_uid == pwd_entry->pw_uid)
+    {
+        return MATCH;
+    }
+
+}
+
+
+
+
+static int do_uid(struct stat entry_data, const char * param)
+{
+    const struct passwd *pwd_entry;
+    int match;
+    long int uid;
+    char *pt;
+
+    uid = strtol(param,&pt,0);
+
+    if(pt != NULL) {
+        printf("something went wrong!");
+    }
+    if ((pwd_entry = getpwuid(uid)) != NULL) {
+        if (pwd_entry->pw_uid == entry_data.st_uid) {
+            return MATCH;
+        }
+    }
+    else {
+        if (errno != 0) {
+            error(0, errno, "uid");
+
+        }
+
+        return NO_MATCH;
+    }
+}
+
+
+
+static int do_user(struct stat entry_data, const char * param) {
+
+    if (do_username(entry_data, param) || do_uid(entry_data, param) == 1) {
+
+        return MATCH;
+    } else {
+       return NO_MATCH;
+    }
+
+
+}
+
+
+static int do_nouser(struct stat entry_data)
+{
+    errno = 0;
+  const struct passwd * pwd_etnry;
+
+    pwd_etnry = getpwuid(entry_data.st_uid);
+    if (pwd_etnry == NULL)
+    {
+        if (errno!=0)
+        {
+            error(0, errno, "nouser");
+        }
+        else
+        {
+            return MATCH;
+        }
+    }
+
+    return NO_MATCH;
+}
+
+
+
+
+static int do_groupname(struct stat entry_data, const char * param)
+{
+    errno = 0;
+    const struct passwd *grp_entry;
+
+    grp_entry = getgrnam(param);
+    if (grp_entry == NULL){
+
+        if (errno!=0)
+            error(0,errno, "groupname");// - oder nicht drucken wenn keins gefunden wird?
+        return NO_MATCH;
+    }
+    else if(entry_data.st_uid == grp_entry->pw_uid)
+    {
+        return MATCH;
+    }
+
+}
+
+
+
+
+static int do_gid(struct stat entry_data, const char * param)
+{
+    const struct passwd *grp_entry;
+    long int gid;
+    char *pt;
+
+    gid = strtol(param,&pt,0);
+
+    if(pt != NULL) {
+        printf("something went wrong!");
+    }
+    if ((grp_entry = getgrgid(gid)) != NULL) {
+        if (grp_entry->pw_uid == entry_data.st_uid) {
+            return MATCH;
+        }
+    }
+    else {
+        if (errno != 0) {
+            error(0, errno, "gid");
+
+        }
+
+        return NO_MATCH;
+    }
+}
+
+
+
+static int do_group(struct stat entry_data, const char * param) {
+
+    if (do_groupname(entry_data, param) || do_gid(entry_data, param) == 1) {
+
+        return MATCH;
+    } else {
+        return NO_MATCH;
+    }
+
+
+}
+
+
+static int do_nogroup(struct stat entry_data)
+{
+    errno = 0;
+    const struct passwd * grp_etnry;
+
+    grp_etnry = getgrgid(entry_data.st_uid);
+    if (grp_etnry == NULL)
+    {
+        if (errno!=0)
+        {
+            error(0, errno, "nogroup");
+        }
+        else
+        {
+            return MATCH;
+        }
+    }
+    return NO_MATCH;
+}
+
+
+
