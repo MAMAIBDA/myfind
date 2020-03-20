@@ -180,6 +180,10 @@ void do_dir(const char * dir_name, char ** parms) {
  * next it checks the arguments and see which to option is active and print it if it matches the demand
  *
  *
+ * \param entry_name passes the item that should be checked
+ * \param parms are the arguments supplied in the program call
+ *
+ * \return: void function no value returned
  * */
 
 void do_entry(const char * entry_name, char ** parms){
