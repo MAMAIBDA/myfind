@@ -269,27 +269,38 @@ void do_entry(const char * entry_name, char ** parms){
 
 static int do_name(const char *entry_name, char *parms) {
     const char *buff = NULL;
-    if(strrchr(entry_name, '/') != 0){
+    errno=0;
+    int control=-1;
+    if(strrchr(entry_name, '/') != NULL){
         buff = (strrchr(entry_name, '/') + 1);
 
-        if (fnmatch(parms, buff, FNM_NOESCAPE) == 0){
+        if (control=(fnmatch(parms, buff, FNM_NOESCAPE)) == 0){
             return 1;
         }
-        else{
+        else if (control==FNM_NOMATCH){
             return 0;
         }
+
+        else
+        {
+            error(1, errno, "FNMATCH %s %s\n", parms,buff);
+            return 0;
+        }
+        
     }
     else{
-        if (fnmatch(parms, entry_name,FNM_NOESCAPE) == 0){
+        if (control=(fnmatch(parms, entry_name,FNM_NOESCAPE)) == 0){
             return 1;
         }
+        else if (control==FNM_NOMATCH){
+            return 0;
+        }
         else{
+            error(1, errno, "FNMATCH %s %s\n", parms,buff);
             return 0;
         }
     }
 }
-
-
 /**
  *
  * \brief:do_type is a function that checks for a specific type of the searched item if requested.
@@ -388,21 +399,34 @@ static void do_print(const char *file_name,const int print_that) {
 
 static int do_path(const char *entry_name, char *parms) {
     const char *buff = NULL;
-    if(strrchr(entry_name, '/') != 0){
+    errno=0;
+    int control=-1;
+    if(strrchr(entry_name, '/') != NULL){
         buff = (strrchr(entry_name, '/') + 1);
 
-        if (fnmatch(parms, buff, FNM_NOESCAPE) == 0){ // the flag FNM_NOESCAPE is to assure that "\" is treated as a normal character
+        if (control=(fnmatch(parms, buff, FNM_NOESCAPE)) == 0){
             return 1;
         }
-        else{
+        else if (control==FNM_NOMATCH){
             return 0;
         }
+
+        else
+        {
+            error(1, errno, "FNMATCH %s %s\n", parms,buff);
+            return 0;
+        }
+        
     }
     else{
-        if (fnmatch(parms, entry_name, FNM_NOESCAPE) == 0){
+        if (control=(fnmatch(parms, entry_name,FNM_NOESCAPE)) == 0){
             return 1;
         }
+        else if (control==FNM_NOMATCH){
+            return 0;
+        }
         else{
+            error(1, errno, "FNMATCH %s %s\n", parms,buff);
             return 0;
         }
     }
